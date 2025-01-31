@@ -1,0 +1,39 @@
+# Age-sex pyramid. Individual ages. (R) 
+
+# 1. Install and load the libraries.
+install.packages("readxl") # To read Excel files
+install.packages("ggplot2") # To create the pyramid
+install.packages("dplyr") # To manipulate data
+install.packages("scales") # To improve graphs
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+# Read data from Excel file
+data <- read_excel("file name.xlsx", sheet="Tab mane")
+
+# Transform data to represent men as negative values
+data_transformed <- data %>% mutate(MEN_NEG = -MEN) # Men will be represented as negative values
+
+# Create population pyramid
+ggplot(data_transformed, aes(x = AGE)) +
+# Chart for men (with negative values)
+geom_bar(aes(y = MEN_NEG, fill = "Men"), stat = "identity", alpha = 0.7) +
+# Chart for women (with positive values)
+geom_bar(aes(y = WOMEN, fill = "Women"), stat = "identity", alpha = 0.7) +
+coord_flip() + # Rotate the graph to be horizontal
+labs(title = "Title name",
+x = "Age",
+y = "Population") +
+scale_fill_manual(values ​​= c("Men" = "blue", "Women" = "red")) + # Custom colors
+scale_y_continuous(labels = function(x) paste0(round(abs(x) / sum(data$MEN + data$WOMEN) * 100, 2), "%"),
+breaks = scales::pretty_breaks()) + # Display as percentage and round to 2 digits
+theme_classic() + # Classic style
+theme(
+axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Population label setting
+axis.title.x = element_text(size = 12), # X-axis title setting
+axis.title.y = element_text(size = 12), # Y-axis title setting
+legend.title = element_blank(), # Remove the legend title
+legend.text = element_text(size = 10) # Adjust the legend text size
+)
