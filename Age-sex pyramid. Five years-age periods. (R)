@@ -1,0 +1,39 @@
+#1. Install and load libraries
+install.packages("readxl") # To read Excel files
+install.packages("ggplot2") # To create the pyramid
+install.packages("dplyr") # To manipulate data
+install.packages("scales") # To shape graph's scales
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+# Read the data from the Excel file
+data <- read_excel("file_name.xlsx", sheet="tab-name")
+
+# Important: Make sure that the variable AGE is as an ordered factor
+data_transformed <- data %>%
+mutate(HOMBRES_NEG = -HOMBRES) %>%
+mutate(EDAD = factor(EDAD, levels = unique(EDAD))) # Make sure that AGE is an ordered factor
+
+# Create the population pyramid
+ggplot(data_transformed, aes(x = AGE)) +
+# Graph for men (with negative values)
+geom_bar(aes(y = MEN_NEG, fill = "Men"), stat = "identity", alpha = 0.7) +
+# Graph for women (with positive values)
+geom_bar(aes(y = WOMEN, fill = "Women"), stat = "identity", alpha = 0.7) +
+coord_flip() + # Flip the graph so that it is horizontal
+labs(title = "Bogotá. 2005.",
+x = "Age",
+y = "Population") +
+scale_fill_manual(values ​​= c("Men" = "blue", "Women" = "red")) + # Custom colors
+scale_y_continuous(labels = function(x) paste0(round(abs(x) / sum(data$MEN + data$WOMEN) * 100, 2), "%"),
+breaks = scales::pretty_breaks()) + # Display as percentage and round to 2 digits
+theme_classic() + # Minimalist style
+theme(
+axis.text.x = element_text(size = 12), # Remove age labels
+axis.title.x = element_text(size = 12), # Adjust X-axis title
+axis.title.y = element_text(size = 12), # Adjust Y-axis title
+legend.title = element_blank(), # Remove legend title
+legend.text = element_text(size = 10) # Adjust the legend text size
+)
