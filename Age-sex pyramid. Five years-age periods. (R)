@@ -13,8 +13,8 @@ data <- read_excel("file_name.xlsx", sheet="tab-name")
 
 # Important: Make sure that the variable AGE is as an ordered factor
 data_transformed <- data %>%
-mutate(HOMBRES_NEG = -HOMBRES) %>%
-mutate(EDAD = factor(EDAD, levels = unique(EDAD))) # Make sure that AGE is an ordered factor
+mutate(MEN_NEG = -MEN) %>%
+mutate(AGE = factor(AGE, levels = unique(AGE))) # Make sure that AGE is an ordered factor
 
 # Create the population pyramid
 ggplot(data_transformed, aes(x = AGE)) +
@@ -23,7 +23,7 @@ geom_bar(aes(y = MEN_NEG, fill = "Men"), stat = "identity", alpha = 0.7) +
 # Graph for women (with positive values)
 geom_bar(aes(y = WOMEN, fill = "Women"), stat = "identity", alpha = 0.7) +
 coord_flip() + # Flip the graph so that it is horizontal
-labs(title = "Bogotá. 2005.",
+labs(title = "graph_title",
 x = "Age",
 y = "Population") +
 scale_fill_manual(values ​​= c("Men" = "blue", "Women" = "red")) + # Custom colors
