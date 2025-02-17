@@ -1,0 +1,57 @@
+# Install and load libraries
+install.packages("readxl") # To read Excel files
+install.packages("ggplot2") # To create the pyramid
+install.packages("dplyr") # For data manipulation
+install.packages("scales") # To shape the graph’s scales
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+# Read both data sets
+data_1 <- read_excel("file_name.xlsx", sheet="tab_number") # First data set
+data_2 <- read_excel("file_name.xlsx", sheet=" tab_number ") # Second data set
+
+# Transform both data sets to calculate the percentages
+data_1_transformed <- data_1 %>%
+mutate(MEN_NEG = -MEN, # Keep men with negative values
+AGE = factor(AGE, levels = unique(AGE)),
+Year = "first_year",
+Total = sum(MEN + WOMEN), # Total population for the year 2005
+Percent_Men = MEN / Total * 100, # Percentage of men
+Percent_Women = WOMEN / Total * 100) # Percentage of women
+
+data_2_transformed <- data_2 %>%
+mutate(MEN_NEG = -MEN, # Keep men with negative values
+AGE = factor(AGE, levels = unique(AGE)),
+Year = "second_year",
+Total = sum(MEN + WOMEN), # Total population for the year 2024
+Percent_Men = MEN / Total * 100, # Percentage of men
+Percentage_Women = WOMEN / Total * 100) # Percentage of women
+
+# Merge both dataframes
+data_combined <- bind_rows(data_1_transformed, data_2_transformed)
+
+# Create the combined population pyramid in percentage
+ggplot(data_combined, aes(x = AGE)) +
+# Chart for men (with negative values, in percentage)
+geom_bar(aes(y = -Percentage_Men, fill = paste(Year, "Men")), stat = "identity", alpha = 0.6) +
+# Chart for women (in percentage)
+geom_bar(aes(y = Percentage_Women, fill = paste(Year, "Women")), stat = "identity", alpha = 0.6) +
+coord_flip() + # Flip the chart to be horizontal
+labs(title = "graph_title",
+x = "Age",
+y = "Percentage of population") +
+scale_fill_manual(values = c("first_year Men" = "blue", " first_year Women" = "red",
+"second_year Men" = "lightblue", " second_year Women" = "lightcoral")) + # Custom colors
+scale_y_continuous(labels = scales::percent_format(scale = 1), breaks = scales::pretty_breaks()) + # Display as percentage on Y axis
+theme_classic() + # Minimalist style
+theme(
+axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Age label setting
+axis.title.x = element_text(size = 12), # X axis title setting
+axis.title.y = element_text(size = 12), # X axis title setting And
+legend.title = element_blank(), # Remove the legend title
+legend.text = element_text(size = 10) # Adjust legend text size
+) +
+# Show labels for values with % sign and as positive in the visualization
+scale_y_continuous(labels = function(x) paste0(abs(x), "%")) # Add % sign to labels
